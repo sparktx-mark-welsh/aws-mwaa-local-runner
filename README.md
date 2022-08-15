@@ -1,3 +1,16 @@
+# SparkDs changes
+
+This is now using Airflow 2.2.2 to help test using the same version on MWAA. It
+also install `apex_sdk` (be sure to update the requirements.txt in
+`dags/requirements.txt`, a symlink is best for this).
+
+Newer versions of docker-compose do not play well with periods in the container
+names, so underscores are used instead.
+
+To best integrate this with a current repo, clone this alongside the `dags/` and
+`plugins/` folders and then symlink those folders inside
+`aws-mwaa-local-runner/`.
+
 # About aws-mwaa-local-runner
 
 This repository provides a command line interface (CLI) utility that replicates an Amazon Managed Workflows for Apache Airflow (MWAA) environment locally.
