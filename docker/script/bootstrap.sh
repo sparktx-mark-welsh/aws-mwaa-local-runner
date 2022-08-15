@@ -21,7 +21,7 @@ pip3 install $PIP_OPTION psycopg2
 pip3 install $PIP_OPTION "setuptools<=57.*"
 
 # install minimal Airflow packages
-pip3 install $PIP_OPTION --constraint /constraints.txt apache-airflow[crypto,celery,statsd"${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}"]=="${AIRFLOW_VERSION}"
+pip3 install $PIP_OPTION --constraint /constraints.txt apache-airflow[crypto,celery,statsd"${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}"]
 
 # install additional python dependencies
 if [ -n "${PYTHON_DEPS}" ]; then pip3 install $PIP_OPTION "${PYTHON_DEPS}"; fi
@@ -30,19 +30,15 @@ if [ -n "${PYTHON_DEPS}" ]; then pip3 install $PIP_OPTION "${PYTHON_DEPS}"; fi
 adduser -s /bin/bash -d "${AIRFLOW_USER_HOME}" airflow
 
 # install watchtower for Cloudwatch logging
-pip3 install $PIP_OPTION watchtower==1.0.1
+pip3 install --constraint /constraints.txt $PIP_OPTION watchtower
 
-pip3 install $PIP_OPTION apache-airflow-providers-tableau==1.0.0
-pip3 install $PIP_OPTION apache-airflow-providers-databricks==1.0.1
-pip3 install $PIP_OPTION apache-airflow-providers-ssh==1.3.0
-pip3 install $PIP_OPTION apache-airflow-providers-postgres==1.0.2
-pip3 install $PIP_OPTION apache-airflow-providers-docker==1.2.0
-pip3 install $PIP_OPTION apache-airflow-providers-oracle==1.1.0
-pip3 install $PIP_OPTION apache-airflow-providers-presto==1.0.2
-pip3 install $PIP_OPTION apache-airflow-providers-sftp==1.2.0
+pip3 install --constraint /constraints.txt $PIP_OPTION apache-airflow-providers-ssh
+pip3 install --constraint /constraints.txt $PIP_OPTION apache-airflow-providers-postgres
+pip3 install --constraint /constraints.txt $PIP_OPTION apache-airflow-providers-sftp
 
 # Install default providers
 pip3 install --constraint /constraints.txt apache-airflow-providers-amazon
+pip3 install --constraint /constraints.txt --extra-index-url="https://sparkds-pypi.sparkds.io/" apex_sdk==0.3.0
 
 # Use symbolic link to ensure Airflow 2.0's backport packages are in the same namespace as Airflow itself
 # see https://airflow.apache.org/docs/apache-airflow/stable/backport-providers.html#troubleshooting-installing-backport-packages
