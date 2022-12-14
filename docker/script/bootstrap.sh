@@ -37,8 +37,9 @@ pip3 install --constraint /constraints.txt $PIP_OPTION apache-airflow-providers-
 pip3 install --constraint /constraints.txt $PIP_OPTION apache-airflow-providers-sftp
 
 # Install default providers
-pip3 install --constraint /constraints.txt apache-airflow-providers-amazon
-pip3 install --constraint /constraints.txt --extra-index-url="https://sparkds-pypi.sparkds.io/" apex_sdk==0.3.0
+# pip3 install --constraint /constraints.txt apache-airflow-providers-amazon
+pip3 install --constraint /constraints.txt --extra-index-url="https://sparkds-pypi.sparkds.io/" apache-airflow-providers-amazon
+pip3 install --constraint /constraints.txt --extra-index-url="https://sparkds-pypi.sparkds.io/" apex_sdk==0.4.0
 
 # Use symbolic link to ensure Airflow 2.0's backport packages are in the same namespace as Airflow itself
 # see https://airflow.apache.org/docs/apache-airflow/stable/backport-providers.html#troubleshooting-installing-backport-packages
