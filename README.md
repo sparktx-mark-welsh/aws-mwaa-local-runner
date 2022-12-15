@@ -11,6 +11,13 @@ To best integrate this with a current repo, clone this alongside the `dags/` and
 `plugins/` folders and then symlink those folders inside
 `aws-mwaa-local-runner/`.
 
+DAGs that use `boto3` on actual MWAA instances inheret the IAM permissions from
+the MWAA execution role. However, on local MWAA instances, the container built
+has no default IAM role and the `aws_default` connection would have to be passed
+to all `boto3` ops. Users can fill in credentials and an AWS region in
+`aws-creds.env` and these will be passed to the MWAA container when running
+`./mwaa-local-env start`
+
 # About aws-mwaa-local-runner
 
 This repository provides a command line interface (CLI) utility that replicates an Amazon Managed Workflows for Apache Airflow (MWAA) environment locally.
