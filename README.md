@@ -1,6 +1,6 @@
 # SparkDs changes
 
-This is now using Airflow 2.2.2 to help test using the same version on MWAA. It
+This is now using Airflow 2.4.3 to help test using the same version on MWAA. It
 also install `apex_sdk` (be sure to update the requirements.txt in
 `dags/requirements.txt`, a symlink is best for this).
 
@@ -22,6 +22,9 @@ to all `boto3` ops. Users can fill in credentials and an AWS region in
 
 This repository provides a command line interface (CLI) utility that replicates an Amazon Managed Workflows for Apache Airflow (MWAA) environment locally.
 
+*Please note: MWAA/AWS/DAG/Plugin issues should be raised through AWS Support or the Airflow Slack #airflow-aws channel.  Issues here should be focused on this local-runner repository.*
+
+
 ## About the CLI
 
 The CLI builds a Docker container image locally that’s similar to a MWAA production image. This allows you to run a local Apache Airflow environment to develop and test DAGs, custom plugins, and dependencies before deploying to MWAA.
@@ -30,26 +33,36 @@ The CLI builds a Docker container image locally that’s similar to a MWAA produ
 
 ```text
 dags/
-  requirements.txt
-  tutorial.py
+  example_lambda.py
+  example_dag_with_taskflow_api.py    
+  example_redshift_data_execute_sql.py
 docker/
-  .gitignore
-  mwaa-local-env
-  README.md
   config/
     airflow.cfg
     constraints.txt
-    requirements.txt
+    mwaa-base-providers-requirements.txt
     webserver_config.py
+    .env.localrunner
   script/
     bootstrap.sh
     entrypoint.sh
     systemlibs.sh
     generate_key.sh
-  docker-compose-dbonly.yml
   docker-compose-local.yml
+  docker-compose-resetdb.yml
   docker-compose-sequential.yml
   Dockerfile
+plugins/
+  README.md
+requirements/  
+  requirements.txt
+.gitignore
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE
+mwaa-local-env
+README.md
+VERSION
 ```
 
 ## Prerequisites
@@ -76,8 +89,6 @@ Build the Docker container image using the following command:
 **Note**: it takes several minutes to build the Docker image locally.
 
 ### Step two: Running Apache Airflow
-
-Run Apache Airflow using one of the following database backends.
 
 #### Local runner
 
@@ -107,18 +118,18 @@ The following section describes where to add your DAG code and supporting files.
 #### DAGs
 
 1. Add DAG code to the `dags/` folder.
-2. To run the sample code in this repository, see the `tutorial.py` file.
+2. To run the sample code in this repository, see the `example_dag_with_taskflow_api.py` file.
 
 #### Requirements.txt
 
-1. Add Python dependencies to `dags/requirements.txt`.  
+1. Add Python dependencies to `requirements/requirements.txt`.  
 2. To test a requirements.txt without running Apache Airflow, use the following script:
 
 ```bash
 ./mwaa-local-env test-requirements
 ```
 
-Let's say you add `aws-batch==0.6` to your `dags/requirements.txt` file. You should see an output similar to:
+Let's say you add `aws-batch==0.6` to your `requirements/requirements.txt` file. You should see an output similar to:
 
 ```bash
 Installing requirements.txt
@@ -135,24 +146,21 @@ Installing collected packages: botocore, docutils, pyasn1, rsa, awscli, aws-batc
 Successfully installed aws-batch-0.6 awscli-1.19.21 botocore-1.20.21 docutils-0.15.2 pyasn1-0.4.8 rsa-4.7.2
 ```
 
+3. To package the necessary WHL files for your requirements.txt without running Apache Airflow, use the following script:
+
+```bash
+./mwaa-local-env package-requirements
+```
+
+For example usage see [Installing Python dependencies using PyPi.org Requirements File Format Option two: Python wheels (.whl)](https://docs.aws.amazon.com/mwaa/latest/userguide/best-practices-dependencies.html#best-practices-dependencies-python-wheels).
+
 #### Custom plugins
 
-- Create a directory at the root of this repository, and change directories into it. This should be at the same level as `dags/` and `docker`. For example:
+- There is a directory at the root of this repository called plugins. 
+- In this directory, create a file for your new custom plugin.
+- Add any Python dependencies to `requirements/requirements.txt`.
 
-```bash
-mkdir plugins
-cd plugins
-```
-
-- Create a file for your custom plugin. For example:
-
-```bash
-virtual_python_plugin.py
-```
-
-- (Optional) Add any Python dependencies to `dags/requirements.txt`.
-
-**Note**: this step assumes you have a DAG that corresponds to the custom plugin. For examples, see [MWAA Code Examples](https://docs.aws.amazon.com/mwaa/latest/userguide/sample-code.html).
+**Note**: this step assumes you have a DAG that corresponds to the custom plugin. For example usage [MWAA Code Examples](https://docs.aws.amazon.com/mwaa/latest/userguide/sample-code.html).
 
 ## What's next?
 
@@ -168,26 +176,29 @@ The following section contains common questions and answers you may encounter wh
 
 - You can setup the local Airflow's boto with the intended execution role to test your DAGs with AWS operators before uploading to your Amazon S3 bucket. To setup aws connection for Airflow locally see [Airflow | AWS Connection](https://airflow.apache.org/docs/apache-airflow-providers-amazon/stable/connections/aws.html)
 To learn more, see [Amazon MWAA Execution Role](https://docs.aws.amazon.com/mwaa/latest/userguide/mwaa-create-role.html).
+- You can set AWS credentials via environment variables set in the `docker/config/.env.localrunner` env file. To learn more about AWS environment variables, see [Environment variables to configure the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) and [Using temporary security credentials with the AWS CLI](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_temp_use-resources.html#using-temp-creds-sdk-cli). Simply set the relevant environment variables in `.env.localrunner` and `./mwaa-local-env start`.
 
 ### How do I add libraries to requirements.txt and test install?
 
-- A `requirements.txt` file is included in the `/dags` folder of your local Docker container image. We recommend adding libraries to this file, and running locally.
+- A `requirements.txt` file is included in the `/requirements` folder of your local Docker container image. We recommend adding libraries to this file, and running locally.
 
 ### What if a library is not available on PyPi.org?
 
-- If a library is not available in the Python Package Index (PyPi.org), add the `--index-url` flag to the package in your `dags/requirements.txt` file. To learn more, see [Managing Python dependencies in requirements.txt](https://docs.aws.amazon.com/mwaa/latest/userguide/best-practices-dependencies.html).
+- If a library is not available in the Python Package Index (PyPi.org), add the `--index-url` flag to the package in your `requirements/requirements.txt` file. To learn more, see [Managing Python dependencies in requirements.txt](https://docs.aws.amazon.com/mwaa/latest/userguide/best-practices-dependencies.html).
 
 ## Troubleshooting
 
 The following section contains errors you may encounter when using the Docker container image in this repository.
 
-### My environment is not starting - process failed with dag_stats_table already exists
+### My environment is not starting
 
 - If you encountered [the following error](https://issues.apache.org/jira/browse/AIRFLOW-3678): `process fails with "dag_stats_table already exists"`, you'll need to reset your database using the following command:
 
 ```bash
 ./mwaa-local-env reset-db
 ```
+
+- If you are moving from an older version of local-runner you may need to run the above reset-db command, or delete your `./db-data` folder. Note, too, that newer Airflow versions have newer provider packages, which may require updating your DAG code.
 
 ### Fernet Key InvalidToken
 

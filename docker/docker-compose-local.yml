@@ -14,7 +14,7 @@ services:
             - "${PWD}/db-data:/var/lib/postgresql/data"
 
     local-runner:
-        image: amazon/mwaa-local:2_2_2
+        image: amazon/mwaa-local:2_4_3
         restart: always
         depends_on:
             - postgres
@@ -29,8 +29,9 @@ services:
                 max-size: 10m
                 max-file: "3"
         volumes:
-            - ${PWD}/dags:/usr/local/airflow/dags
-            - ${PWD}/plugins:/usr/local/airflow/plugins
+            - "${PWD}/dags:/usr/local/airflow/dags"
+            - "${PWD}/plugins:/usr/local/airflow/plugins"
+            - "${PWD}/requirements:/usr/local/airflow/requirements"
         ports:
             - "8080:8080"
         command: local-runner
@@ -39,3 +40,5 @@ services:
             interval: 30s
             timeout: 30s
             retries: 3
+        env_file:
+            - ./config/.env.localrunner
