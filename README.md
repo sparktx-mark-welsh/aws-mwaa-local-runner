@@ -1,3 +1,15 @@
+# SparkDs changes
+
+This is now using Airflow 2.7.2 to help test using the same version on MWAA. It
+also install `apex_sdk` (be sure to update the requirements.txt in
+`dags/requirements.txt`, a symlink is best for this).
+
+To best integrate this with DAGs you are developing, clone this repository separately and then
+and then symlink your dev repo's `plugins/` and `dags/` folders inside
+`aws-mwaa-local-runner/`.
+
+DAGs that use boto3 on actual MWAA instances inheret the IAM permissions from the MWAA execution role. However, on local MWAA instances, the container built has no default IAM role and the aws_default connection would have to be passed to all boto3 ops. Users can fill in credentials and an AWS region in aws-creds.env and these will be passed to the MWAA container when running ./mwaa-local-env start
+
 # About aws-mwaa-local-runner
 
 This repository provides a command line interface (CLI) utility that replicates an Amazon Managed Workflows for Apache Airflow (MWAA) environment locally.
@@ -89,7 +101,7 @@ By default, the `bootstrap.sh` script creates a username and password for your l
 
 #### Airflow UI
 
-- Open the Apache Airlfow UI: <http://localhost:8080/>.
+- Open the Apache Airlfow UI: <http://localhost:8888/>.
 
 ### Step four: Add DAGs and supporting files
 

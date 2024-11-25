@@ -2,3 +2,10 @@
 
 apache-airflow-providers-snowflake==5.0.1
 apache-airflow-providers-mysql==5.3.1
+awswrangler
+apache-airflow[ssh]==2.7.2
+apache-airflow[sentry]==2.7.2
+apache-airflow-providers-amazon==8.7.1
+apex_sdk==0.8.2
+
+acryl-datahub-airflow-plugin[plugin-v2]
