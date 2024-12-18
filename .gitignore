@@ -5,3 +5,7 @@ dags/**/*.pyc
 /logs
 /db-data
 .DS_Store
+
+aws_creds.env
+dags
+plugins
