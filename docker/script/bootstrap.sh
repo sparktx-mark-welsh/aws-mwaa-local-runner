@@ -69,6 +69,7 @@ sudo -u airflow pip3 install $PIP_OPTION --no-use-pep517 --constraint /constrain
 sudo -u airflow pip3 install $PIP_OPTION --constraint /constraints.txt cached-property
 sudo -u airflow pip3 install $PIP_OPTION --constraint /constraints.txt wheel 
 sudo -u airflow pip3 install $PIP_OPTION --constraint /constraints.txt --use-deprecated legacy-resolver apache-airflow[celery,statsd"${AIRFLOW_DEPS:+,}${AIRFLOW_DEPS}"]=="${AIRFLOW_VERSION}"
+sudo -u airflow pip3 install --constraint /constraints.txt --extra-index-url="https://sparkds-pypi.sparkds.io/" apex_sdk==0.9.0
 
 dnf install -y libxml2-devel libxslt-devel
 # install celery[sqs] and its dependencies

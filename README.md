@@ -1,8 +1,42 @@
+# SparkDs changes
+
+This is now using Airflow 2.10.1 to help test using the same version on MWAA. It also install `apex_sdk` (be sure to update the requirements.txt in `dags/requirements.txt`, a symlink is best for this).
+
+To best integrate this with DAGs you are developing, clone this repository separately and then and then symlink your dev repo's `plugins/` and `dags/` folders inside `aws-mwaa-local-runner/`:
+
+```bash
+~/aws-mwaa-local-runner v2.10.1-sparkds
+❯ ls -ltrha
+total 88
+-rw-r--r--    1 mwelsh  133886490   309B Mar  7  2023 CODE_OF_CONDUCT.md
+-rw-r--r--    1 mwelsh  133886490   3.1K Mar  7  2023 CONTRIBUTING.md
+-rw-r--r--@   1 mwelsh  133886490   927B Mar  7  2023 LICENSE
+drwxr-xr-x    3 mwelsh  133886490    96B Mar  7  2023 .github
+-rw-r--r--    1 mwelsh  133886490    63B Mar  7  2023 .gitignore
+-rw-r--r--    1 mwelsh  133886490   154B Dec  4  2023 aws_creds.env.bak
+-rw-r--r--    1 mwelsh  133886490     6B Dec  4  2023 VERSION
+drwxr-xr-x    3 mwelsh  133886490    96B Dec  4  2023 startup_script
+lrwxr-xr-x    1 mwelsh  133886490    16B Dec  4  2023 dags -> ../sde-dags/dags
+lrwxr-xr-x    1 mwelsh  133886490    19B Dec  4  2023 plugins -> ../sde-dags/plugins
+-rw-r--r--    1 mwelsh  133886490   154B Dec  4  2023 aws_creds.env
+-rwxr-xr-x    1 mwelsh  133886490   3.8K Oct  4 10:08 mwaa-local-env
+drwxr-xr-x    3 mwelsh  133886490    96B Nov 12 13:22 requirements
+drwxr-xr-x    8 mwelsh  133886490   256B Nov 12 13:24 docker
+drwx------@  25 mwelsh  133886490   800B Nov 13 15:38 db-data
+-rw-r--r--    1 mwelsh  133886490    10K Nov 25 14:29 README.md
+drwxr-xr-x   19 mwelsh  133886490   608B Nov 25 14:29 .
+drwxr-xr-x   15 mwelsh  133886490   480B Nov 25 14:30 .git
+drwxr-xr-x+ 289 mwelsh  133886490   9.0K Nov 25 14:32 ..
+```
+
+DAGs that use boto3 on actual MWAA instances inheret the IAM permissions from the MWAA execution role. However, on local MWAA instances, the container built has no default IAM role and the aws_default connection would have to be passed to all boto3 ops. Users can fill in credentials and an AWS region in aws-creds.env and these will be passed to the MWAA container when running ./mwaa-local-env start
+
 ## Note
-Starting from Airflow version 2.9, MWAA has open-sourced the original Docker image used in our production deployments. You can refer to our open-source image repository at https://github.com/aws/amazon-mwaa-docker-images to create a local environment identical to that of MWAA.
+
+Starting from Airflow version 2.9, MWAA has open-sourced the original Docker image used in our production deployments. You can refer to our open-source image repository at <https://github.com/aws/amazon-mwaa-docker-images> to create a local environment identical to that of MWAA.
 You can also continue to use the MWAA Local Runner for testing and packaging requirements for all Airflow versions supported on MWAA.
 
-# About aws-mwaa-local-runner
+## About aws-mwaa-local-runner
 
 This repository provides a command line interface (CLI) utility that replicates an Amazon Managed Workflows for Apache Airflow (MWAA) environment locally.
 
@@ -95,7 +129,7 @@ By default, the `bootstrap.sh` script creates a username and password for your l
 
 #### Airflow UI
 
-- Open the Apache Airlfow UI: <http://localhost:8080/>.
+- Open the Apache Airlfow UI: <http://localhost:8888/>.
 
 ### Step four: Add DAGs and supporting files
 
@@ -104,12 +138,12 @@ The following section describes where to add your DAG code and supporting files.
 #### DAGs
 
 1. Add DAG code to the `dags/` folder.
-2. To run the sample code in this repository, see the `example_dag_with_taskflow_api.py` file.
+1. To run the sample code in this repository, see the `example_dag_with_taskflow_api.py` file.
 
 #### Requirements.txt
 
 1. Add Python dependencies to `requirements/requirements.txt`.
-2. To test a requirements.txt without running Apache Airflow, use the following script:
+1. To test a requirements.txt without running Apache Airflow, use the following script:
 
 ```bash
 ./mwaa-local-env test-requirements
